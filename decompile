@@ -1,0 +1,12 @@
+<?php
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['file'])) {
+    $input = $_FILES['file']['tmp_name'];
+    $output = tempnam(sys_get_temp_dir(), 'unluac_');
+    $options = $_POST['options'] ?? '';
+    $cmd = "java -jar unluac.jar $options " . escapeshellarg($input) . " 2>&1";
+    exec($cmd, $out, $ret);
+    echo implode("\n", $out);
+} else {
+    http_response_code(400);
+    echo "No file uploaded";
+}

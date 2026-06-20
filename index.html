@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Paradise · GG Script Studio | Live Decrypt with unluac</title>
+    <style>
+        /* same as before, include all styles from previous answer */
+        * { margin: 0; padding: 0; box-sizing: border-box; transition: background 0.2s, color 0.2s, border-color 0.2s; }
+        :root { --bg-gradient-start: #0a0c16; --bg-gradient-end: #060812; --panel-bg: rgba(18, 22, 35, 0.85); --panel-border: rgba(90, 140, 255, 0.3); --card-bg: #0b0e17; --card-border: #2a2f42; --text-primary: #eef4ff; --text-secondary: #8a99c4; --input-bg: #0f121f; --input-border: #2a2f46; --input-focus: #5d7eff; --badge-bg: #1e243b; --button-bg: #2d364f; --button-primary: #3c6eff; --button-primary-hover: #2b5be6; --pre-bg: #01010a; --pre-border: #2f354b; --nav-bg: rgba(12, 15, 28, 0.95); --nav-hover: #2d364f; --danger: #ff5e5e; --success: #4caf50; }
+        body.light { --bg-gradient-start: #eef2ff; --bg-gradient-end: #d4dcec; --panel-bg: rgba(245, 248, 255, 0.95); --panel-border: rgba(60, 110, 255, 0.3); --card-bg: #ffffff; --card-border: #cbd5e1; --text-primary: #1e293b; --text-secondary: #475569; --input-bg: #f8fafc; --input-border: #cbd5e1; --input-focus: #3c6eff; --badge-bg: #e2e8f0; --button-bg: #e2e8f0; --button-primary: #3c6eff; --button-primary-hover: #2b5be6; --pre-bg: #f1f5f9; --pre-border: #cbd5e1; --nav-bg: rgba(255, 255, 255, 0.95); --nav-hover: #e2e8f0; }
+        body { background: radial-gradient(circle at 10% 20%, var(--bg-gradient-start), var(--bg-gradient-end)); font-family: 'Segoe UI', 'Fira Code', monospace; margin: 0; color: var(--text-primary); min-height: 100vh; position: relative; }
+        body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: radial-gradient(circle at 20% 30%, rgba(60, 110, 255, 0.08) 2px, transparent 2px), radial-gradient(circle at 80% 70%, rgba(60, 110, 255, 0.06) 1px, transparent 1px); background-size: 50px 50px, 80px 80px; pointer-events: none; z-index: 0; animation: floatBg 60s linear infinite; }
+        @keyframes floatBg { 0% { background-position: 0 0, 0 0; } 100% { background-position: 100px 100px, 200px 150px; } }
+        .navbar, .container > div, footer { position: relative; z-index: 1; }
+        .navbar { background: var(--nav-bg); backdrop-filter: blur(8px); border-bottom: 1px solid var(--panel-border); padding: 0.8rem 2rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+        .logo { display: flex; align-items: center; gap: 10px; font-size: 1.3rem; font-weight: 700; background: linear-gradient(135deg, #c0e0ff, #7c9eff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .nav-links { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .nav-btn { background: transparent; border: none; padding: 0.5rem 1.2rem; font-weight: 600; font-family: inherit; font-size: 0.9rem; color: var(--text-secondary); cursor: pointer; border-radius: 2rem; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .nav-btn:hover, .nav-btn.active { background: var(--nav-hover); color: var(--text-primary); }
+        .theme-toggle { background: var(--button-bg); border: none; border-radius: 2rem; padding: 0.5rem 1rem; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; gap: 6px; color: var(--text-primary); }
+        .tab-content { display: none; animation: fadeIn 0.2s; }
+        .tab-content.active-tab { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px);} to { opacity: 1; transform: translateY(0);} }
+        .container { max-width: 1500px; margin: 2rem auto; padding: 0 1.5rem; display: flex; flex-wrap: wrap; gap: 2rem; justify-content: center; }
+        .generator-panel, .auto-panel, .decrypt-panel { flex: 1.3; min-width: 360px; background: var(--panel-bg); backdrop-filter: blur(2px); border-radius: 2rem; padding: 1.8rem; border: 1px solid var(--panel-border); box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.5); }
+        .output-panel { flex: 1; min-width: 480px; background: var(--card-bg); border-radius: 2rem; padding: 1.8rem; border: 1px solid var(--card-border); display: flex; flex-direction: column; }
+        .about-card { max-width: 800px; margin: 2rem auto; background: var(--panel-bg); border-radius: 2rem; padding: 2rem; text-align: center; backdrop-filter: blur(4px); }
+        h1, h2, h3 { background: linear-gradient(135deg, #c0e0ff, #7c9eff); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 0.5rem; }
+        .field-group { margin-bottom: 1.2rem; display: flex; flex-direction: column; gap: 0.45rem; }
+        label { font-weight: 500; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); }
+        input, select { background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 1rem; padding: 0.65rem 1rem; color: var(--text-primary); font-family: monospace; font-size: 0.9rem; }
+        .row-2cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .checkbox-group { display: flex; align-items: center; gap: 0.6rem; }
+        hr { border-color: var(--card-border); margin: 1rem 0; }
+        pre { background: var(--pre-bg); border-radius: 1.2rem; padding: 1.2rem; overflow-x: auto; font-size: 0.75rem; font-family: 'Fira Code', monospace; color: var(--text-primary); border: 1px solid var(--pre-border); white-space: pre-wrap; word-break: break-word; max-height: 600px; overflow-y: auto; }
+        button { background: var(--button-bg); border: none; border-radius: 2rem; padding: 0.5rem 1.3rem; font-weight: 600; color: var(--text-primary); cursor: pointer; transition: 0.2s; font-family: inherit; display: inline-flex; align-items: center; gap: 6px; }
+        button.primary { background: var(--button-primary); box-shadow: 0 4px 12px rgba(60, 110, 255, 0.3); }
+        button.primary:hover { background: var(--button-primary-hover); transform: translateY(-1px); }
+        .action-buttons { display: flex; gap: 1rem; margin-top: 1rem; flex-wrap: wrap; justify-content: flex-end; }
+        footer { text-align: center; margin-top: 2rem; padding: 1.5rem; font-size: 0.75rem; color: var(--text-secondary); border-top: 1px solid var(--card-border); }
+        .patch-card { background: var(--input-bg); border-radius: 1rem; padding: 1rem; margin-bottom: 1rem; border: 1px solid var(--input-border); }
+        .edit-item { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.5rem; align-items: center; background: var(--card-bg); padding: 0.5rem; border-radius: 0.8rem; }
+        .edit-actions button { padding: 0.2rem 0.6rem; font-size: 0.7rem; }
+        .address-range { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+        details { background: var(--input-bg); border-radius: 1.2rem; padding: 0.6rem 1rem; margin: 1rem 0 0.5rem 0; border: 1px solid var(--input-border); }
+        summary { font-weight: 600; color: var(--text-secondary); cursor: pointer; margin-bottom: 0.6rem; }
+        .inline-hint { font-size: 0.7rem; color: var(--text-secondary); }
+        .file-upload { border: 2px dashed var(--input-border); border-radius: 1rem; padding: 1.5rem; text-align: center; cursor: pointer; transition: 0.2s; background: var(--input-bg); }
+        .file-upload:hover { border-color: var(--input-focus); background: var(--card-bg); }
+        .server-guide { background: var(--input-bg); border-radius: 1rem; padding: 1rem; margin-top: 1rem; border: 1px solid var(--input-border); }
+        .download-btn { background: var(--success); color: white; }
+        .download-btn:hover { filter: brightness(0.9); }
+        .status-badge { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+        .status-online { background-color: #4caf50; box-shadow: 0 0 4px #4caf50; }
+        .status-offline { background-color: #ff5e5e; }
+        .test-btn { background: var(--button-bg); margin-left: 0.5rem; padding: 0.2rem 0.8rem; font-size: 0.7rem; }
+    </style>
+</head>
+<body>
+<div class="navbar">
+    <div class="logo">🧙‍♂️ Paradise Script Studio</div>
+    <div class="nav-links">
+        <button class="nav-btn active" data-tab="aboutTab">ℹ️ About</button>
+        <button class="nav-btn" data-tab="basicTab">⚙️ Script Generate</button>
+        <button class="nav-btn" data-tab="autoTab">🔄 Auto Update</button>
+        <button class="nav-btn" data-tab="decryptTab">🔓 Decrypt Lua</button>
+    </div>
+    <button class="theme-toggle" id="themeToggle">🌙 Dark</button>
+</div>
+
+<!-- ABOUT TAB -->
+<div id="aboutTab" class="tab-content active-tab">
+    <div class="about-card">
+        <h2>📖 Paradise GG Script Studio</h2>
+        <p style="margin: 1rem 0;">Professional Lua script generator for <strong>Game Guardian</strong> with three powerful modes:</p>
+        <div style="text-align: left; display: inline-block; margin: 1rem auto;">
+            <h3>✨ Script Generate (Basic)</h3>
+            <ul><li>Search & replace values</li><li>Address ranges (hex preserved)</li><li>Nearby scan & refine</li><li>Offset editing & freeze</li><li>Group search support</li></ul>
+            <h3>🔄 Auto Update (Advanced)</h3>
+            <ul><li>ARM8 / ARM7 architecture</li><li>Auto-offset finder in libil2cpp.so</li><li>Dynamic ARM to hex converter</li><li>Hacks → Patches → Edits with auto +4 offset</li><li>Live log & credit banner</li></ul>
+            <h3>🔓 Decrypt Lua (with unluac)</h3>
+            <ul><li>Upload .luac file</li><li>Decompile using <strong>unluac.jar</strong> via local server</li><li>One‑click server script included</li><li>No CORS issues – everything runs on same port</li></ul>
+        </div>
+        <p>Created by <strong>Coding Script</strong> · For Game Guardian community</p>
+        <br>
+        <button class="primary" id="gotoBasicBtn">🚀 Go to Script Generate</button>
+        <button class="primary" id="gotoAutoBtn" style="margin-left: 1rem;">⚡ Go to Auto Update</button>
+        <button class="primary" id="gotoDecryptBtn" style="margin-left: 1rem;">🔓 Go to Decrypt Lua</button>
+    </div>
+</div>
+
+<!-- BASIC SCRIPT GENERATE TAB (same as before) -->
+<div id="basicTab" class="tab-content">
+    <div class="container">
+        <div class="generator-panel">
+            <h1>⚡ Paradise· GG Script Generator</h1>
+            <div class="sub">Basic search, edit, offset, freeze</div>
+            <div class="field-group"><label>📜 SCRIPT INFO</label><div class="row-2cols"><input type="text" id="scriptName" placeholder="Name" value="Paradise"><input type="text" id="author" placeholder="Author" value="Coding Script"></div><input type="text" id="description" placeholder="Description" value="Script Generator"></div>
+            <hr>
+            <div class="field-group"><label>🔍 PRIMARY SEARCH</label><div class="row-2cols"><input type="text" id="searchValue" placeholder="Value (0x64, 100, 'text')" value="100"><select id="valueType"><option value="gg.TYPE_DWORD">DWORD</option><option value="gg.TYPE_FLOAT">FLOAT</option><option value="gg.TYPE_WORD">WORD</option><option value="gg.TYPE_BYTE">BYTE</option><option value="gg.TYPE_QWORD">QWORD</option><option value="gg.TYPE_XOR">XOR</option><option value="gg.TYPE_DOUBLE">DOUBLE</option><option value="gg.TYPE_STRING">📝 STRING</option></select></div><div class="checkbox-group"><input type="checkbox" id="useGroupSearch"> <span>🎯 Group search (100;200;300::5)</span></div></div>
+            <div class="field-group"><label>🔄 REFINE SEARCH</label><div class="row-2cols"><input type="text" id="refineValue" placeholder="Refine search" value=""><select id="refineType"><option value="gg.TYPE_DWORD">DWORD</option><option value="gg.TYPE_FLOAT">FLOAT</option><option value="gg.TYPE_WORD">WORD</option><option value="gg.TYPE_BYTE">BYTE</option><option value="gg.TYPE_QWORD">QWORD</option><option value="gg.TYPE_STRING">STRING</option></select></div></div>
+            <details><summary>📍 ADDRESS RANGE</summary><div class="address-range"><input type="text" id="startAddr" placeholder="Start e.g., 0xA0000000" value=""><input type="text" id="endAddr" placeholder="End e.g., 0xAFFFFFFF" value=""></div></details>
+            <details><summary>🔎 SEARCH NEARBY</summary><div class="field-group"><div class="checkbox-group"><input type="checkbox" id="enableNearby"> Enable nearby scan</div><div style="margin-top: 8px;"><div class="row-2cols"><input type="text" id="nearbyValue" placeholder="Nearby value" value="500"><select id="nearbyType"><option value="gg.TYPE_DWORD">DWORD</option><option value="gg.TYPE_FLOAT">FLOAT</option><option value="gg.TYPE_WORD">WORD</option><option value="gg.TYPE_BYTE">BYTE</option><option value="gg.TYPE_STRING">STRING</option></select></div><input type="text" id="nearbyOffsetRange" placeholder="Radius (hex/dec) e.g., 0x100" value="0x100"></div></div></details>
+            <hr>
+            <div class="field-group"><label>✏️ EDIT & FREEZE</label><div class="row-2cols"><input type="text" id="newValue" placeholder="New value (0x3E7, -0x4, 'new')" value="999"><div class="checkbox-group"><input type="checkbox" id="freezeEdits"> ❄️ Freeze</div></div><div class="checkbox-group"><input type="checkbox" id="enableOffset"> ➕ Address offset<input type="text" id="offsetHex" placeholder="Offset (0x4, -0x4)" value="0x10" style="width: 120px;"></div></div>
+            <hr>
+            <div class="field-group"><label>⚙️ BEHAVIOR</label><div class="checkbox-group" style="justify-content: space-between;"><label><input type="checkbox" id="toastNotify" checked> Toast messages</label><label><input type="checkbox" id="alertNoResults" checked> Alert if no results</label><label><input type="checkbox" id="clearBefore" checked> Clear before search</label></div><hr><label>✏️ Get Results</label><input type="number" id="maxResults" placeholder="Max results" value="500" step="50"></div>
+        </div>
+        <div class="output-panel">
+            <div class="action-buttons"><button id="copyBasicBtn">📋 COPY</button><button id="downloadBasicBtn" class="primary">💾 DOWNLOAD .lua</button></div>
+            <pre id="basicOutput">-- script will appear here --</pre>
+            <div class="action-buttons"><button id="regenerateBasicBtn">⟳ GENERATE NOW</button></div>
+        </div>
+    </div>
+</div>
+
+<!-- AUTO UPDATE TAB (same as before) -->
+<div id="autoTab" class="tab-content">
+    <div class="container">
+        <div class="auto-panel">
+            <h2>🔄 ARM8 / ARM7 Auto Patcher</h2>
+            <div class="sub">Dynamic ARM→Hex · Auto-offset finder</div>
+            <div class="field-group"><label>📜 generated_script_title</label><input type="text" id="autoTitle" value="Last Day On Earth: Survival Script by Coding Script"></div>
+            <div class="row-2cols"><div class="field-group"><label>🎮 target_process</label><input type="text" id="targetProcess" value="zombie.survival.craft.z"></div><div class="field-group"><label>🏷️ target_name</label><input type="text" id="targetName" value="Last Day On Earth: Survival"></div></div>
+            <div class="row-2cols"><div class="field-group"><label>📦 script_version</label><input type="text" id="scriptVer" value="1.0"></div><div class="field-group"><label>🔧 Architecture</label><select id="archSelect"><option value="64">ARM64 (ARM8 / 64-bit)</option><option value="32">ARM32 (ARM7 / 32-bit)</option></select></div></div>
+            <div class="checkbox-group"><input type="checkbox" id="liveLogCheck"> <label>📢 Enable Live Log (toast each patch)</label></div>
+            <hr>
+            <div id="hacksContainer"><h3>🧩 Hacks & Patches</h3><div id="hacksList"></div><button type="button" id="addHackBtn" class="primary">+ Add Hack</button></div>
+            <hr>
+            <div class="checkbox-group"><input type="checkbox" id="includeCredit" checked> <label>Include credit banner</label></div>
+            <button id="generateAutoBtn" class="primary" style="margin-top: 1rem;">🚀 Generate Auto-Update Script</button>
+        </div>
+        <div class="output-panel">
+            <div class="action-buttons"><button id="copyAutoBtn">📋 COPY</button><button id="downloadAutoBtn" class="primary">💾 DOWNLOAD</button></div>
+            <pre id="autoOutput">-- script will appear here --</pre>
+        </div>
+    </div>
+</div>
+
+<!-- DECRYPT LUA TAB with enhanced server check and instructions -->
+<div id="decryptTab" class="tab-content">
+    <div class="container">
+        <div class="decrypt-panel">
+            <h2>🔓 Lua Bytecode Decryptor (unluac)</h2>
+            <div class="sub">Upload .luac → Decompile using unluac.jar</div>
+            <div class="field-group">
+                <label>📁 Lua bytecode file (.luac)</label>
+                <div class="file-upload" id="fileDropZone">
+                    📂 Click or drag .luac file here
+                    <input type="file" id="luacFileInput" accept=".luac" style="display: none;">
+                </div>
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="rawstringOpt"> <label>--rawstring</label>
+                <input type="checkbox" id="luajOpt"> <label>--luaj</label>
+                <input type="checkbox" id="nodebugOpt"> <label>--nodebug</label>
+            </div>
+            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                <button id="mockDecryptBtn" class="primary" style="background: #6c757d;">📄 Mock Preview</button>
+                <button id="realDecryptBtn" class="primary">🚀 Real Decompile</button>
+                <button id="testServerBtn" class="test-btn">🔌 Test Server</button>
+                <div id="serverStatus" style="font-size:0.8rem; display: flex; align-items: center;">
+                    <span class="status-badge status-offline" id="statusDot"></span>
+                    <span id="statusText">Server unknown</span>
+                </div>
+            </div>
+            <hr>
+            <div class="server-guide">
+                <strong>⚡ Setup local server to run unluac.jar (no CORS, same port):</strong>
+                <ol style="margin: 0.5rem 0 0 1.2rem; font-size: 0.8rem;">
+                    <li>Download <strong>unluac.jar</strong> from <a href="https://github.com/tehtmi/unluac/releases" target="_blank">here</a> and place it in an empty folder.</li>
+                    <li>Save this HTML file as <code>index.html</code> in the same folder.</li>
+                    <li>Click the button below to download <code>server.js</code> into the same folder.</li>
+                    <li>Open a terminal in that folder and run:<br>
+                        <code>npm install express multer</code><br>
+                        <code>node server.js</code>
+                    </li>
+                    <li>Open your browser at <strong>http://127.0.0.1:8080</strong> (the page will load, and the API works on the same origin).</li>
+                </ol>
+                <button id="downloadServerBtn" class="download-btn">📥 Download server.js</button>
+                <p class="inline-hint" style="margin-top: 0.5rem;">The server automatically serves this HTML and handles decompilation via <code>/decompile</code> endpoint.</p>
+            </div>
+        </div>
+        <div class="output-panel">
+            <div class="action-buttons"><button id="copyDecryptBtn">📋 COPY</button><button id="downloadDecryptBtn" class="primary">💾 DOWNLOAD .lua</button></div>
+            <pre id="decryptOutput">-- Decompiled Lua will appear here --</pre>
+            <div id="decryptStatus" style="font-size:0.8rem; margin-top:0.5rem;"></div>
+        </div>
+    </div>
+</div>
+
+<footer>© <span id="currentYear"></span> Paradise Script Studio · Coding Script</footer>
+
+<script>
+    // ======================== THEME & TAB SWITCHING ========================
+    const themeToggle = document.getElementById('themeToggle');
+    const setTheme = (mode) => {
+        if (mode === 'light') { document.body.classList.add('light'); themeToggle.innerHTML = '☀️ Light'; localStorage.setItem('ggTheme', 'light'); }
+        else { document.body.classList.remove('light'); themeToggle.innerHTML = '🌙 Dark'; localStorage.setItem('ggTheme', 'dark'); }
+    };
+    if (localStorage.getItem('ggTheme') === 'light') setTheme('light'); else setTheme('dark');
+    themeToggle.addEventListener('click', () => { if (document.body.classList.contains('light')) setTheme('dark'); else setTheme('light'); });
+
+    const tabs = document.querySelectorAll('.nav-btn');
+    const contents = {
+        aboutTab: document.getElementById('aboutTab'),
+        basicTab: document.getElementById('basicTab'),
+        autoTab: document.getElementById('autoTab'),
+        decryptTab: document.getElementById('decryptTab')
+    };
+    function activateTab(tabId) {
+        Object.keys(contents).forEach(id => contents[id].classList.remove('active-tab'));
+        contents[tabId].classList.add('active-tab');
+        tabs.forEach(btn => { if (btn.getAttribute('data-tab') === tabId) btn.classList.add('active'); else btn.classList.remove('active'); });
+    }
+    tabs.forEach(btn => btn.addEventListener('click', () => {
+        const tid = btn.getAttribute('data-tab');
+        if (tid && contents[tid]) activateTab(tid);
+    }));
+    document.getElementById('gotoBasicBtn')?.addEventListener('click', () => activateTab('basicTab'));
+    document.getElementById('gotoAutoBtn')?.addEventListener('click', () => activateTab('autoTab'));
+    document.getElementById('gotoDecryptBtn')?.addEventListener('click', () => activateTab('decryptTab'));
+
+    // ======================== BASIC GENERATOR (full code) ========================
+    function isHexLiteral(s) { return typeof s === 'string' && /^-?0x[0-9a-fA-F]+$/.test(s.trim()); }
+    function escapeLuaString(str) { return String(str).replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, ''); }
+    function formatLuaValue(raw, typeConst) {
+        let str = raw.trim();
+        if (typeConst === "gg.TYPE_STRING") {
+            if ((str.startsWith('"') && str.endsWith('"')) || (str.startsWith("'") && str.endsWith("'"))) return str;
+            else return '"' + escapeLuaString(str) + '"';
+        }
+        if (isHexLiteral(str)) return str;
+        let num = Number(str);
+        if (!isNaN(num) && str !== "") return num.toString();
+        return '"' + escapeLuaString(str) + '"';
+    }
+    function formatOffsetLiteral(raw) {
+        let s = raw.trim();
+        if (s === "") return "0";
+        if (isHexLiteral(s)) return s;
+        let num = Number(s);
+        return isNaN(num) ? "0" : num.toString();
+    }
+    function getRangeParams(startRaw, endRaw) {
+        let start = startRaw.trim(), end = endRaw.trim();
+        if (start !== "" && end !== "") return `, 0, ${start}, ${end}`;
+        else if (start !== "") return `, 0, ${start}`;
+        return "";
+    }
+    function generateBasicScript() {
+        try {
+            let name = document.getElementById('scriptName').value.trim() || "Paradise";
+            let authorVal = document.getElementById('author').value.trim() || "Coding Script";
+            let maxRes = parseInt(document.getElementById('maxResults').value, 10) || 500;
+            let doToast = document.getElementById('toastNotify').checked;
+            let doAlert = document.getElementById('alertNoResults').checked;
+            let doClear = document.getElementById('clearBefore').checked;
+            let groupMode = document.getElementById('useGroupSearch').checked;
+            let searchPattern = document.getElementById('searchValue').value.trim() || "0";
+            let valueTypeConst = document.getElementById('valueType').value;
+            let refinePattern = document.getElementById('refineValue').value.trim();
+            let refineTypeConst = document.getElementById('refineType').value;
+            let useRefine = refinePattern !== "";
+            let startAddrRaw = document.getElementById('startAddr').value;
+            let endAddrRaw = document.getElementById('endAddr').value;
+            let doNearby = document.getElementById('enableNearby').checked;
+            let nearbyValRaw = document.getElementById('nearbyValue').value.trim();
+            let nearbyTypeConst = document.getElementById('nearbyType').value;
+            let nearbyRangeRaw = document.getElementById('nearbyOffsetRange').value.trim();
+            let nearbyRangeLiteral = (isHexLiteral(nearbyRangeRaw) || !isNaN(Number(nearbyRangeRaw))) ? nearbyRangeRaw : "0x100";
+            let editNewVal = document.getElementById('newValue').value.trim() || "0";
+            let doFreeze = document.getElementById('freezeEdits').checked;
+            let doOffset = document.getElementById('enableOffset').checked;
+            let offsetRaw = document.getElementById('offsetHex').value.trim();
+            let offsetLiteral = formatOffsetLiteral(offsetRaw);
+            if (doNearby && nearbyValRaw === "") doNearby = false;
+            let lines = [];
+            lines.push(`--[[ ${name} by ${authorVal} --]]`);
+            if (doToast) lines.push(`gg.toast("🚀 ${name}")`);
+            if (doClear) lines.push(`gg.clearResults()`);
+            let rangeParams = getRangeParams(startAddrRaw, endAddrRaw);
+            let searchValueLiteral = groupMode ? '"' + escapeLuaString(searchPattern) + '"' : formatLuaValue(searchPattern, valueTypeConst);
+            lines.push(`gg.searchNumber(${searchValueLiteral}, ${valueTypeConst}${rangeParams})`);
+            lines.push(`local results = gg.getResults(${maxRes})`);
+            lines.push(`local rc = #results`);
+            if (doToast) lines.push(`if rc > 0 then gg.toast("✓ Found "..rc.." results") end`);
+            if (useRefine) {
+                let refineLiteral = formatLuaValue(refinePattern, refineTypeConst);
+                lines.push(`if rc > 0 then gg.refineNumber(${refineLiteral}, ${refineTypeConst}) results = gg.getResults(${maxRes}) rc = #results end`);
+            }
+            if (doNearby) {
+                let nearbyLiteral = formatLuaValue(nearbyValRaw, nearbyTypeConst);
+                lines.push(`local nearbyHits={}; local maxNearby=200`);
+                lines.push(`for i=1,math.min(rc,maxNearby) do local addr=results[i].address; local lo=addr-${nearbyRangeLiteral}; local hi=addr+${nearbyRangeLiteral}; gg.searchNumber(${nearbyLiteral},${nearbyTypeConst},0,lo,hi); local tmp=gg.getResults(10); for _,v in ipairs(tmp) do table.insert(nearbyHits,v) end; gg.clearResults() end`);
+                lines.push(`if #nearbyHits>0 then results=nearbyHits; rc=#results; if doToast then gg.toast("🔎 Nearby found "..rc.." addresses") end else if doToast then gg.toast("No nearby values") end end`);
+            }
+            let newValueLiteral = formatLuaValue(editNewVal, valueTypeConst);
+            lines.push(`if rc>0 then`);
+            if (doOffset) {
+                lines.push(`    local offsetVal=${offsetLiteral}; local editTable={}`);
+                lines.push(`    for i,entry in ipairs(results) do editTable[i]={address=entry.address+offsetVal, flags=${valueTypeConst}, value=${newValueLiteral}} end`);
+                lines.push(`    local changed=gg.setValues(editTable); if doToast then gg.toast("✏️ Offset edit: "..changed.." values") end`);
+                if (doFreeze) lines.push(`    local freezeTable={}; for i,v in ipairs(editTable) do freezeTable[i]={address=v.address, flags=v.flags, value=v.value, freeze=true} end; gg.addListItems(freezeTable); gg.toast("❄️ Freezed "..#freezeTable.." addresses")`);
+            } else {
+                lines.push(`    local editCount=gg.editAll(${newValueLiteral}, ${valueTypeConst}); if doToast and editCount then gg.toast("✅ Edited "..editCount.." values") end`);
+                if (doFreeze) lines.push(`    local latest=gg.getResults(rc); local freezeItems={}; for i,v in ipairs(latest) do freezeItems[i]={address=v.address, flags=v.flags, value=v.value, freeze=true} end; gg.addListItems(freezeItems); gg.toast("❄️ Freezed "..#freezeItems.." items")`);
+            }
+            lines.push(`else`);
+            if (doAlert) lines.push(`    gg.alert("❌ No results found")`);
+            else if (doToast) lines.push(`    gg.toast("⚠️ No results to edit")`);
+            lines.push(`end`);
+            if (doToast) lines.push(`gg.toast("🏁 ${name} finished")`);
+            document.getElementById('basicOutput').innerText = lines.join('\n');
+        } catch(e) { document.getElementById('basicOutput').innerText = `-- ERROR: ${e.message}`; }
+    }
+    document.getElementById('regenerateBasicBtn')?.addEventListener('click', generateBasicScript);
+    document.getElementById('copyBasicBtn')?.addEventListener('click', () => { navigator.clipboard.writeText(document.getElementById('basicOutput').innerText); alert("Copied!"); });
+    document.getElementById('downloadBasicBtn')?.addEventListener('click', () => {
+        let content = document.getElementById('basicOutput').innerText;
+        let fname = (document.getElementById('scriptName').value.trim() || "paradise_script") + ".lua";
+        let blob = new Blob([content], {type: "text/plain"}); let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fname; a.click(); URL.revokeObjectURL(a.href);
+    });
+    const basicInputs = ['scriptName','author','description','searchValue','valueType','useGroupSearch','refineValue','refineType','startAddr','endAddr','enableNearby','nearbyValue','nearbyType','nearbyOffsetRange','newValue','freezeEdits','enableOffset','offsetHex','toastNotify','alertNoResults','clearBefore','maxResults'];
+    basicInputs.forEach(id => { let el = document.getElementById(id); if(el) { el.addEventListener('input', generateBasicScript); if(el.type !== 'checkbox') el.addEventListener('change', generateBasicScript); else el.addEventListener('change', generateBasicScript); } });
+    generateBasicScript();
+
+    // ======================== AUTO UPDATE (full ARM patcher) ========================
+    let autoHacksData = [];
+    function parseOffset(off) { let s=String(off).trim(); if(s==="") return 0; if(s.toLowerCase().startsWith("0x")) return parseInt(s,16); return parseInt(s,10); }
+    function intToMov(value, arch) { let num=Math.min(65535,Math.max(0,parseInt(value)||0)); if(arch==='64') { if(num===0) return "MOV W0, WZR"; return `MOV W0, #${num}`; } else { return `MOV R0, #${num}`; } }
+    function escapeLua(s) { return String(s).replace(/\\/g,'\\\\').replace(/"/g,'\\"').replace(/\n/g,'\\n'); }
+    function escapeHtml(s) { return String(s).replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
+    function renderHacksList() {
+        const container = document.getElementById('hacksList');
+        if (!container) return;
+        container.innerHTML = '';
+        autoHacksData.forEach((hack, idx) => {
+            const hackDiv = document.createElement('div');
+            hackDiv.className = 'patch-card';
+            hackDiv.dataset.hackIdx = idx;
+            hackDiv.innerHTML = `<div class="field-group"><strong>📂 Hack ${idx+1}:</strong> <input type="text" class="hack-name" value="${escapeHtml(hack.name)}" placeholder="Hack name" style="width:70%"></div><hr><div class="patches-list"></div><button class="addPatchBtn" data-hack="${idx}">+ Add Patch</button><button class="removeHackBtn" data-hack="${idx}" style="background:var(--danger);">Remove Hack</button>`;
+            container.appendChild(hackDiv);
+            const patchesContainer = hackDiv.querySelector('.patches-list');
+            hack.patches.forEach((patch, pidx) => {
+                const patchDiv = document.createElement('div');
+                patchDiv.style.border = '1px solid var(--input-border)'; patchDiv.style.borderRadius = '0.8rem'; patchDiv.style.padding = '0.5rem'; patchDiv.style.margin = '0.5rem 0';
+                patchDiv.dataset.patchIdx = pidx;
+                patchDiv.innerHTML = `<strong>✏️ Patch ${pidx+1}</strong><br><hr><div class="field-group"><label>Class:</label><input type="text" class="patch-class" value="${escapeHtml(patch.class)}" style="width:45%"></div><div class="field-group"><label>Method:</label><input type="text" class="patch-method" value="${escapeHtml(patch.method)}" style="width:45%"></div><div class="edits-list"></div><button class="addEditBtn" data-hack="${idx}" data-patch="${pidx}">+ Add Edit</button><button class="removePatchBtn" data-hack="${idx}" data-patch="${pidx}" style="background:var(--danger);">Remove Patch</button>`;
+                patchesContainer.appendChild(patchDiv);
+                const editsContainer = patchDiv.querySelector('.edits-list');
+                patch.edits.forEach((edit, eidx) => {
+                    const editDiv = document.createElement('div');
+                    editDiv.className = 'edit-item';
+                    editDiv.dataset.editIdx = eidx;
+                    editDiv.innerHTML = `<input type="text" class="edit-offset" placeholder="Offset (decimal)" value="${escapeHtml(edit.offset)}" style="width:100px"><input type="text" class="edit-asm" placeholder="ARM asm (e.g., MOV W0, #65535)" value="${escapeHtml(edit.asm)}" style="flex:1"><div class="edit-actions"><button class="bool-true" data-hack="${idx}" data-patch="${pidx}" data-edit="${eidx}">✅ True</button><button class="bool-false" data-hack="${idx}" data-patch="${pidx}" data-edit="${eidx}">❌ False</button><button class="int-btn" data-hack="${idx}" data-patch="${pidx}" data-edit="${eidx}">🔢 INT</button><button class="ret-btn" data-hack="${idx}" data-patch="${pidx}" data-edit="${eidx}">⏎ RET</button><button class="removeEditBtn" data-hack="${idx}" data-patch="${pidx}" data-edit="${eidx}">🗑️</button></div>`;
+                    editsContainer.appendChild(editDiv);
+                });
+            });
+        });
+        attachAutoInputListeners();
+        generateAutoScript();
+    }
+    function attachAutoInputListeners() {
+        document.querySelectorAll('.hack-name, .patch-class, .patch-method, .edit-offset, .edit-asm').forEach(el => {
+            el.removeEventListener('input', autoInputHandler);
+            el.addEventListener('input', autoInputHandler);
+        });
+    }
+    function autoInputHandler() { generateAutoScript(); }
+    function generateAutoScript() {
+        let title = document.getElementById('autoTitle').value.trim() || "Auto Script";
+        let pkg = document.getElementById('targetProcess').value.trim() || "com.example.game";
+        let game = document.getElementById('targetName').value.trim() || "Game";
+        let ver = document.getElementById('scriptVer').value.trim() || "1.0";
+        let arch = document.getElementById('archSelect').value;
+        let incCredit = document.getElementById('includeCredit').checked;
+        let liveLog = document.getElementById('liveLogCheck').checked;
+        let lines = [];
+        lines.push(`--[[ Auto-Generated with dynamic ARM to hex converter --]]`);
+        lines.push(`generated_script_title = "${escapeLua(title)}"`);
+        lines.push(`target_process = "${escapeLua(pkg)}"`);
+        lines.push(`target_name = "${escapeLua(game)}"`);
+        lines.push(`script_version = "${escapeLua(ver)}"`);
+        lines.push(`xbit = ${arch==='64'?64:32}; LibResult=1; xREV=1; XbitX=2`);
+        lines.push(``);
+        if (arch === '64') {
+            lines.push(`local function assemble(asm)`);
+            lines.push(`    local static = {`);
+            lines.push(`        ["MOV W0, WZR"] = "hE0031F2A",`);
+            lines.push(`        ["RET"] = "hC0035FD6",`);
+            lines.push(`        ["MOV W0, #1"] = "h20008052",`);
+            lines.push(`        ["FMOV W0, S0"] = "0000261E",`);
+            lines.push(`        ["SCVTF S0, S0"] = "00D8215E",`);
+            lines.push(`        ["FMOV S0, W0"] = "0000271E",`);
+            lines.push(`        ["MOV X0, #10"] = "h400180D2",`);
+            lines.push(`        ["MOV W0, #0x32"] = "52800640",`);
+            lines.push(`        ["MOV W0, #0x3E8"] = "h007D8052",`);
+            lines.push(`        ["MOV X0, #1"] = "h200080D2",`);
+            lines.push(`        ["MOV X0, #0"] = "h000080D2",`);
+            lines.push(`        ["ORR X0, XZR, #2147483647"] = "hE07B40B2",`);
+            lines.push(`        ["MOVK W0, #0x5000, LSL #16"] = "72A00000",`);
+            lines.push(`        ["MOVN W0, #0x1EFF"] = "1283DFE0",`);
+            lines.push(`        ["MOVK W0, #0x5F5, LSL #16"] = "72A0BEA0",`);
+            lines.push(`        ["MOVK X0, #0xE100, LSL #0"] = "F29C2000",`);
+            lines.push(`        ["MOVK X0, #0x5F5, LSL #16"] = "F2A0BEA0",`);
+            lines.push(`        ["MOVK X0, #0, LSL #32"] = "F2C00000",`);
+            lines.push(`        ["MOVK X0, #0, LSL #48"] = "F2E00000",`);
+            lines.push(`    }`);
+            lines.push(`    if static[asm] then return static[asm] end`);
+            lines.push(`    local movw = asm:match("^MOV W0, #(%d+)$")`);
+            lines.push(`    if movw then local imm = tonumber(movw); if imm == 0 then return "hE0031F2A" end; if imm == 1 then return "h20008052" end; local hex = string.format("%X", 0x52800000 | (imm << 5)); return "h" .. string.rep("0", 8 - #hex) .. hex end`);
+            lines.push(`    local movx = asm:match("^MOV X0, #(%d+)$")`);
+            lines.push(`    if movx then local imm = tonumber(movx); if imm == 0 then return "h000080D2" end; if imm == 1 then return "h200080D2" end; if imm == 10 then return "h400180D2" end; local hex = string.format("%X", 0x92800000 | (imm << 5)); return "h" .. string.rep("0", 8 - #hex) .. hex end`);
+            lines.push(`    if asm:match("^0x[0-9a-fA-F]+$") then return asm end`);
+            lines.push(`    error("Unknown ARM64 instruction: " .. asm)`);
+            lines.push(`end`);
+        } else {
+            lines.push(`local function assemble(asm)`);
+            lines.push(`    local static = { ["MOV R0, #0"] = "h0000A0E3", ["MOV R0, #1"] = "h0100A0E3", ["RET"] = "h1EFF2FE1" }`);
+            lines.push(`    if static[asm] then return static[asm] end`);
+            lines.push(`    local mov = asm:match("^MOV R0, #(%d+)$")`);
+            lines.push(`    if mov then local imm = tonumber(mov); return "h" .. string.format("%08X", 0xE3A00000 | imm) end`);
+            lines.push(`    if asm:match("^0x[0-9a-fA-F]+$") then return asm end`);
+            lines.push(`    error("Unknown ARM32 instruction: " .. asm)`);
+            lines.push(`end`);
+        }
+        lines.push(``);
+        lines.push(`hacks = { ${arch==='64'?"ARM8":"ARM7"} = {`);
+        for(let h of autoHacksData) {
+            lines.push(`    { name = "${escapeLua(h.name)}", patches = {`);
+            for(let p of h.patches) {
+                lines.push(`        { class = "${escapeLua(p.class)}", method = "${escapeLua(p.method)}", edits = {`);
+                for(let e of p.edits) { let off = parseOffset(e.offset); lines.push(`            {${off}, "${escapeLua(e.asm)}"},`); }
+                lines.push(`        } },`);
+            }
+            lines.push(`    } },`);
+        }
+        lines.push(`} }`);
+        lines.push(``);
+        lines.push(`local v = gg.getTargetInfo(); if gg.getTargetPackage() ~= target_process then gg.alert("Wrong process") os.exit() end`);
+        lines.push(`local is64 = v.x64; if (is64 and ${arch==='64'?'false':'true'}) or (not is64 and ${arch==='64'?'true':'false'}) then gg.alert("Arch mismatch") os.exit() end`);
+        lines.push(`gg.setVisible(false); local currentHacks = is64 and hacks.ARM8 or hacks.ARM7; local patches = {}; local hackToPatches = {}`);
+        lines.push(`for hi, h in ipairs(currentHacks) do local pids = {} for pi, p in ipairs(h.patches) do table.insert(patches, {class=p.class, method=p.method, edits=p.edits, hackIdx=hi, patchIdx=pi}) table.insert(pids, #patches) end hackToPatches[hi]=pids end`);
+        lines.push(`local offsets = {}; local data = {}; for i=1,#patches do data[i]={class=patches[i].class, method=patches[i].method} end`);
+        lines.push(`local CASE = {}; local lib = gg.getRangesList('libil2cpp.so'); if #lib==0 then gg.alert("libil2cpp not found") os.exit() end`);
+        lines.push(`for _,r in ipairs(lib) do if r.state=="Xa" then table.insert(CASE, r.start) end end; if #CASE==0 then gg.alert("Executable region not found") os.exit() end`);
+        lines.push(`local off1 = is64 and -16 or -8; local typ = is64 and 32 or 4`);
+        lines.push(`for idx=1,#patches do gg.clearResults(); gg.searchNumber(":"..patches[idx].method, 1); local res = gg.getResults(2); if #res<2 then data[idx].error=1 goto skip end`);
+        lines.push(`gg.refineNumber(res[1].value..";"..res[2].value.."::2", 1); gg.refineNumber(res[1].value, 1); local addrs = gg.getResults(gg.getResultsCount()); for _,a in ipairs(addrs) do a.address = a.address - 1 end; gg.loadResults(addrs)`);
+        lines.push(`gg.refineNumber(0, 1); local point = gg.getResults(gg.getResultsCount(), nil, nil, nil, nil, nil, nil, nil, gg.POINTER_READ_ONLY); if #point==0 then data[idx].error=1 goto skip end`);
+        lines.push(`for _,p in ipairs(point) do p.address = p.address+off1 p.flags=typ end; gg.loadResults(point); local exec = gg.getResults(#point, nil, nil, nil, nil, nil, nil, nil, gg.POINTER_EXECUTABLE | gg.POINTER_READ_ONLY); if #exec==0 then data[idx].error=1 goto skip end; local found=false`);
+        lines.push(`for _,e in ipairs(exec) do local funcPtr = e.value; if is64 then funcPtr = funcPtr else funcPtr = tonumber(string.format("%X",funcPtr):sub(-8),16) end`);
+        lines.push(`local strAddr = funcPtr + (is64 and 24 or 12); local strVal = gg.getValues({{address=strAddr, flags=typ}})[1].value`);
+        lines.push(`local classPtr = strVal + (is64 and 16 or 8); local namePtr = strVal + (is64 and 24 or 12); local classBytes = gg.getValues({{address=classPtr, flags=1, length=50}}); local nameBytes = gg.getValues({{address=namePtr, flags=1, length=50}}); local classMatch = true; local nameMatch = true`);
+        lines.push(`for i=1,#patches[idx].class do if classBytes[i].value ~= string.byte(patches[idx].class,i) then classMatch=false break end end`);
+        lines.push(`for i=1,#patches[idx].method do if nameBytes[i].value ~= string.byte(patches[idx].method,i) then nameMatch=false break end end`);
+        lines.push(`if classMatch and nameMatch then offsets[idx] = funcPtr - CASE[1] found = true break end end; if not found then data[idx].error=1 else data[idx].error=0 end; ::skip:: end`);
+        if(liveLog) lines.push(`-- Live Log enabled`);
+        lines.push(`local function applyHack(hackIdx) for _,pid in ipairs(hackToPatches[hackIdx]) do if data[pid].error==0 then local base = offsets[pid] + CASE[1]`);
+        lines.push(`for _,edit in ipairs(patches[pid].edits) do local addr = base + edit[1]; local hex = assemble(edit[2]); gg.setValues({{address=addr, flags=4, value=hex}})`);
+        if(liveLog) lines.push(`gg.toast(string.format("✏️ %s +0x%X <- %s", patches[pid].method, edit[1], edit[2]))`);
+        lines.push(`end end end end`);
+        lines.push(`local toggle = {}; for i=1,#currentHacks do toggle[i]="❌ " end`);
+        lines.push(`function menu() local opts = {}; for i=1,#currentHacks do opts[i]=toggle[i]..currentHacks[i].name end table.insert(opts,"Exit"); local ch = gg.choice(opts, nil, generated_script_title); if not ch or ch==#opts then os.exit() end; if toggle[ch]=="❌ " then toggle[ch]="✅ " applyHack(ch) else toggle[ch]="❌ " end end`);
+        if(incCredit) {
+            lines.push(`print([[`);
+            lines.push(`⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚`);
+            lines.push(`⧚⧚⧚       Script Created By       `);
+            lines.push(`⧚⧚⧚         Coding Script       `);
+            lines.push(`⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚⧚]])`);
+        }
+        lines.push(`while true do if gg.isVisible() then gg.setVisible(false) menu() end gg.sleep(100) end`);
+        document.getElementById('autoOutput').innerText = lines.join('\n');
+    }
+    const autoInputIds = ['autoTitle','targetProcess','targetName','scriptVer','archSelect','liveLogCheck','includeCredit'];
+    autoInputIds.forEach(id => { let el = document.getElementById(id); if(el) { el.addEventListener('input', generateAutoScript); if(el.type !== 'checkbox') el.addEventListener('change', generateAutoScript); else el.addEventListener('change', generateAutoScript); } });
+    document.getElementById('addHackBtn')?.addEventListener('click', () => { autoHacksData.push({ name:"New Hack", patches:[{ class:"ExampleClass", method:"ExampleMethod", edits:[{ offset:"0", asm:"RET" }] }] }); renderHacksList(); });
+    document.getElementById('hacksList')?.addEventListener('click', (e) => {
+        const t = e.target;
+        if (t.classList.contains('addPatchBtn')) { let hi=parseInt(t.dataset.hack); if(!isNaN(hi)) autoHacksData[hi].patches.push({ class:"NewClass", method:"NewMethod", edits:[{ offset:"0", asm:"RET" }] }); renderHacksList(); return; }
+        if (t.classList.contains('removeHackBtn')) { let hi=parseInt(t.dataset.hack); if(!isNaN(hi)) autoHacksData.splice(hi,1); renderHacksList(); return; }
+        if (t.classList.contains('addEditBtn')) { let h=parseInt(t.dataset.hack), p=parseInt(t.dataset.patch); if(!isNaN(h)&&!isNaN(p)) { let maxOff=0; for(let ed of autoHacksData[h].patches[p].edits) maxOff=Math.max(maxOff, parseOffset(ed.offset)); let next=maxOff+4; autoHacksData[h].patches[p].edits.push({ offset:String(next), asm:"RET" }); renderHacksList(); } return; }
+        if (t.classList.contains('removePatchBtn')) { let h=parseInt(t.dataset.hack), p=parseInt(t.dataset.patch); if(!isNaN(h)&&!isNaN(p)) autoHacksData[h].patches.splice(p,1); renderHacksList(); return; }
+        if (t.classList.contains('removeEditBtn')) { let h=parseInt(t.dataset.hack), p=parseInt(t.dataset.patch), e=parseInt(t.dataset.edit); if(!isNaN(h)&&!isNaN(p)&&!isNaN(e)) autoHacksData[h].patches[p].edits.splice(e,1); renderHacksList(); return; }
+        if (t.classList.contains('bool-true')) { let arch=document.getElementById('archSelect').value, h=parseInt(t.dataset.hack), p=parseInt(t.dataset.patch), e=parseInt(t.dataset.edit); if(!isNaN(h)&&!isNaN(p)&&!isNaN(e)) autoHacksData[h].patches[p].edits[e].asm = (arch==='64'?"MOV W0, #1":"MOV R0, #1"); renderHacksList(); return; }
+        if (t.classList.contains('bool-false')) { let arch=document.getElementById('archSelect').value, h=parseInt(t.dataset.hack), p=parseInt(t.dataset.patch), e=parseInt(t.dataset.edit); if(!isNaN(h)&&!isNaN(p)&&!isNaN(e)) autoHacksData[h].patches[p].edits[e].asm = (arch==='64'?"MOV W0, WZR":"MOV R0, #0"); renderHacksList(); return; }
+        if (t.classList.contains('int-btn')) { let arch=document.getElementById('archSelect').value, h=parseInt(t.dataset.hack), p=parseInt(t.dataset.patch), e=parseInt(t.dataset.edit); if(!isNaN(h)&&!isNaN(p)&&!isNaN(e)) { let val=prompt("Enter integer (0-65535):","999"); if(val!==null) autoHacksData[h].patches[p].edits[e].asm = intToMov(val,arch); renderHacksList(); } return; }
+        if (t.classList.contains('ret-btn')) { let h=parseInt(t.dataset.hack), p=parseInt(t.dataset.patch), e=parseInt(t.dataset.edit); if(!isNaN(h)&&!isNaN(p)&&!isNaN(e)) autoHacksData[h].patches[p].edits[e].asm = "RET"; renderHacksList(); return; }
+    });
+    document.getElementById('hacksList')?.addEventListener('input', (e) => {
+        const t = e.target;
+        if (t.classList.contains('hack-name')) { let div=t.closest('.patch-card'); if(div) autoHacksData[parseInt(div.dataset.hackIdx)].name = t.value; generateAutoScript(); }
+        else if (t.classList.contains('patch-class')) { let patchDiv=t.closest('div[style*="border"]'); if(patchDiv) autoHacksData[parseInt(patchDiv.closest('.patch-card').dataset.hackIdx)].patches[parseInt(patchDiv.dataset.patchIdx)].class = t.value; generateAutoScript(); }
+        else if (t.classList.contains('patch-method')) { let patchDiv=t.closest('div[style*="border"]'); if(patchDiv) autoHacksData[parseInt(patchDiv.closest('.patch-card').dataset.hackIdx)].patches[parseInt(patchDiv.dataset.patchIdx)].method = t.value; generateAutoScript(); }
+        else if (t.classList.contains('edit-offset')) { let editDiv=t.closest('.edit-item'); if(editDiv) { let num=parseOffset(t.value); autoHacksData[parseInt(editDiv.closest('.patch-card').dataset.hackIdx)].patches[parseInt(editDiv.closest('div[style*="border"]').dataset.patchIdx)].edits[parseInt(editDiv.dataset.editIdx)].offset = String(num); t.value=String(num); generateAutoScript(); } }
+        else if (t.classList.contains('edit-asm')) { let editDiv=t.closest('.edit-item'); if(editDiv) autoHacksData[parseInt(editDiv.closest('.patch-card').dataset.hackIdx)].patches[parseInt(editDiv.closest('div[style*="border"]').dataset.patchIdx)].edits[parseInt(editDiv.dataset.editIdx)].asm = t.value; generateAutoScript(); }
+    });
+    document.getElementById('copyAutoBtn')?.addEventListener('click', () => { navigator.clipboard.writeText(document.getElementById('autoOutput').innerText); alert("Copied!"); });
+    document.getElementById('downloadAutoBtn')?.addEventListener('click', () => { let content = document.getElementById('autoOutput').innerText; let fname = (document.getElementById('autoTitle').value.trim() || "auto_script") + ".lua"; let blob = new Blob([content], {type: "text/plain"}); let a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = fname; a.click(); URL.revokeObjectURL(a.href); });
+    autoHacksData = [
+        { name: "Fast Travel", patches: [
+            { class: "GlobalMapMovement", method: "GetDistance", edits: [{ offset: "0", asm: "MOV W0, WZR" }, { offset: "4", asm: "FMOV S0, W0" }, { offset: "8", asm: "SCVTF S0, S0" }, { offset: "12", asm: "FMOV W0, S0" }, { offset: "16", asm: "RET" }] },
+            { class: "GlobalMapMovement", method: "CalcWaitTime", edits: [{ offset: "0", asm: "MOV W0, WZR" }, { offset: "4", asm: "FMOV S0, W0" }, { offset: "8", asm: "SCVTF S0, S0" }, { offset: "12", asm: "FMOV W0, S0" }, { offset: "16", asm: "RET" }] },
+            { class: "GlobalMapMovement", method: "TimeBetweenLocations", edits: [{ offset: "0", asm: "MOV W0, WZR" }, { offset: "4", asm: "FMOV S0, W0" }, { offset: "8", asm: "SCVTF S0, S0" }, { offset: "12", asm: "FMOV W0, S0" }, { offset: "16", asm: "RET" }] },
+            { class: "GlobalMapMovement", method: "GetStartDistance", edits: [{ offset: "0", asm: "MOV W0, WZR" }, { offset: "4", asm: "FMOV S0, W0" }, { offset: "8", asm: "SCVTF S0, S0" }, { offset: "12", asm: "FMOV W0, S0" }, { offset: "16", asm: "RET" }] }
+        ] },
+        { name: "Speed Moving", patches: [
+            { class: "CharacterModel", method: "GetSpeed", edits: [{ offset: "0", asm: "MOV X0, #10" }, { offset: "4", asm: "FMOV S0, W0" }, { offset: "8", asm: "SCVTF S0, S0" }, { offset: "12", asm: "FMOV W0, S0" }, { offset: "16", asm: "RET" }] }
+        ] }
+    ];
+    renderHacksList();
+    generateAutoScript();
+
+    // ======================== DECRYPT LUA with server test ========================
+    const fileInput = document.getElementById('luacFileInput');
+    const dropZone = document.getElementById('fileDropZone');
+    const mockBtn = document.getElementById('mockDecryptBtn');
+    const realDecryptBtn = document.getElementById('realDecryptBtn');
+    const testServerBtn = document.getElementById('testServerBtn');
+    const decryptOutput = document.getElementById('decryptOutput');
+    const decryptStatus = document.getElementById('decryptStatus');
+    const copyDecryptBtn = document.getElementById('copyDecryptBtn');
+    const downloadDecryptBtn = document.getElementById('downloadDecryptBtn');
+    const serverStatusText = document.getElementById('statusText');
+    const statusDot = document.getElementById('statusDot');
+    let currentFile = null;
+
+    // Server connectivity test
+    async function testServer() {
+        try {
+            const response = await fetch('/decompile', { method: 'OPTIONS' });
+            if (response.ok || response.status === 404) {
+                // The endpoint exists but might return 404 for OPTIONS, but we can try a simple GET
+                // Actually better: try to POST an empty form to see if server responds.
+                const testResp = await fetch('/decompile', { method: 'HEAD' }).catch(() => null);
+                if (testResp || true) {
+                    // We'll assume server is reachable if we get any response.
+                    // A more reliable test: send a ping request with small data.
+                    const ping = await fetch('/decompile', { method: 'POST', body: new FormData() }).catch(() => null);
+                    if (ping && (ping.status === 500 || ping.status === 400)) {
+                        // server responded (even with error) – it's alive
+                        serverStatusText.innerText = 'Server online';
+                        statusDot.className = 'status-badge status-online';
+                    } else {
+                        throw new Error('No response');
+                    }
+                } else {
+                    throw new Error('No response');
+                }
+            } else {
+                throw new Error('No response');
+            }
+        } catch (err) {
+            serverStatusText.innerText = 'Server offline (run node server.js)';
+            statusDot.className = 'status-badge status-offline';
+        }
+    }
+
+    testServerBtn.addEventListener('click', testServer);
+    // Auto-test on page load if running on 127.0.0.1
+    if (window.location.protocol === 'http:' && window.location.hostname === '127.0.0.1') {
+        testServer();
+    } else {
+        serverStatusText.innerText = 'Not on 127.0.0.1';
+        statusDot.className = 'status-badge status-offline';
+    }
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = 'var(--input-focus)'; });
+    dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = 'var(--input-border)'; });
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.style.borderColor = 'var(--input-border)';
+        const files = e.dataTransfer.files;
+        if (files.length) handleFileSelect(files[0]);
+    });
+    fileInput.addEventListener('change', (e) => { if (e.target.files.length) handleFileSelect(e.target.files[0]); });
+
+    function handleFileSelect(file) {
+        currentFile = file;
+        dropZone.innerHTML = `📄 ${file.name} (${(file.size/1024).toFixed(1)} KB) selected`;
+        decryptOutput.innerText = `-- Ready. Click "Mock Preview" or "Real Decompile".`;
+        decryptStatus.innerText = '';
+    }
+
+    mockBtn.addEventListener('click', () => {
+        if (!currentFile) {
+            decryptOutput.innerText = "-- No file loaded. Please upload a .luac file.";
+            return;
+        }
+        let rawstring = document.getElementById('rawstringOpt').checked;
+        let luaj = document.getElementById('luajOpt').checked;
+        let nodebug = document.getElementById('nodebugOpt').checked;
+        let options = [];
+        if (rawstring) options.push('--rawstring');
+        if (luaj) options.push('--luaj');
+        if (nodebug) options.push('--nodebug');
+        let optsStr = options.length ? options.join(' ') : '';
+        decryptOutput.innerText = `--[[ MOCK PREVIEW (not actual unluac output)
+-- To decompile for real, run a local server (see guide above).
+-- Uploaded file: ${currentFile.name}
+-- Size: ${currentFile.size} bytes
+-- Options: ${optsStr || 'none'}
+--
+-- Real command: java -jar unluac.jar ${optsStr} input.luac
+--]]`;
+        decryptStatus.innerHTML = 'ℹ️ Mock preview (use server for real decompilation).';
+    });
+
+    realDecryptBtn.addEventListener('click', async () => {
+        if (!currentFile) {
+            decryptOutput.innerText = "-- No file selected.";
+            return;
+        }
+        const formData = new FormData();
+        formData.append('file', currentFile);
+        let options = [];
+        if (document.getElementById('rawstringOpt').checked) options.push('--rawstring');
+        if (document.getElementById('luajOpt').checked) options.push('--luaj');
+        if (document.getElementById('nodebugOpt').checked) options.push('--nodebug');
+        formData.append('options', options.join(' '));
+
+        decryptOutput.innerText = "-- Sending to server...";
+        decryptStatus.innerHTML = '<span style="color: var(--button-primary);">⏳ Decompiling via unluac.jar...</span>';
+        try {
+            const response = await fetch('/decompile', {
+                method: 'POST',
+                body: formData
+            });
+            if (!response.ok) {
+                if (response.status === 404) {
+                    throw new Error('Server endpoint not found. Make sure server.js is running on port 8080 and you opened http://127.0.0.1:8080');
+                }
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            const text = await response.text();
+            decryptOutput.innerText = text || "-- Server returned empty response.";
+            decryptStatus.innerHTML = '✅ Decompilation completed.';
+        } catch (err) {
+            decryptOutput.innerText = `-- Error: ${err.message}\n\n-- Make sure you are running the server script (node server.js)\n-- and opened the page at http://127.0.0.1:8080 (not file://).\n-- The server must be started in the same folder as unluac.jar.`;
+            decryptStatus.innerHTML = '❌ Decompilation failed. Check server and unluac.jar.';
+        }
+    });
+
+    copyDecryptBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(decryptOutput.innerText);
+        alert("Copied!");
+    });
+    downloadDecryptBtn.addEventListener('click', () => {
+        let content = decryptOutput.innerText;
+        let fname = "decompiled_output.lua";
+        let blob = new Blob([content], {type: "text/plain"});
+        let a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = fname;
+        a.click();
+        URL.revokeObjectURL(a.href);
+    });
+
+    document.getElementById('downloadServerBtn').addEventListener('click', () => {
+        const serverCode = `const express = require('express');
+const multer = require('multer');
+const { exec } = require('child_process');
+const fs = require('fs');
+const path = require('path');
+
+const app = express();
+const upload = multer({ dest: 'uploads/' });
+
+app.use(express.static(__dirname));
+
+app.post('/decompile', upload.single('file'), (req, res) => {
+    const input = req.file.path;
+    const options = req.body.options || '';
+    exec(\`java -jar unluac.jar \${options} "\${input}"\`, (err, stdout, stderr) => {
+        fs.unlinkSync(input);
+        if (err) {
+            console.error(stderr);
+            res.status(500).send(\`Error: \${stderr}\`);
+        } else {
+            res.send(stdout);
+        }
+    });
+});
+
+app.listen(8080, () => {
+    console.log('Server running at http://127.0.0.1:8080');
+    console.log('Place unluac.jar in the same folder');
+});`;
+        const blob = new Blob([serverCode], {type: 'text/javascript'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'server.js';
+        a.click();
+        URL.revokeObjectURL(a.href);
+    });
+
+    document.getElementById('currentYear').innerText = new Date().getFullYear();
+</script>
+</body>
+</html>
